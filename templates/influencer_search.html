@@ -1,0 +1,65 @@
+{% extends 'layout.html' %}
+
+{% block title %}
+    Search Influencers
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <!-- Filter Section -->
+        <div class="col-md-4">
+            <h2>Filter Influencers</h2>
+            <form action="{{ url_for('sponsor_search') }}" method="POST">
+                <div class="mb-3">
+                    <label for="niche" class="form-label">Niche</label>
+                    <select id="niche" name="niche" class="form-control">
+                        <option value="" disabled selected>Select a niche</option>
+                        <option value="Fashion">Fashion</option>
+                        <option value="Fitness">Fitness</option>
+                        <option value="Travel">Travel</option>
+                        <option value="Food">Food</option>
+                        <option value="Beauty">Beauty</option>
+                        <option value="Technology">Technology</option>
+                        <option value="Lifestyle">Lifestyle</option>
+                        <option value="Health">Health</option>
+                        <option value="Music">Music</option>
+                        <option value="Gaming">Gaming</option>
+                        <option value="Art">Art</option>
+                        <option value="Education">Education</option>
+                        <option value="Finance">Finance</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="min_followers">Minimum Followers</label>
+                    <input type="number" name="min_followers" id="min_followers" class="form-control" placeholder="0">
+                </div>
+                <div class="form-group">
+                    <label for="max_followers">Maximum Followers</label>
+                    <input type="number" name="max_followers" id="max_followers" class="form-control" placeholder="0">
+                </div>
+                <button type="submit" class="btn btn-primary">Search</button>
+            </form>
+        </div>
+
+        <!-- Search Results Section -->
+        <div class="col-md-8">
+            <h3>Search Results</h3>
+            <div class="list-group">
+                {% if search_results %}
+                    {% for influencer in search_results %}
+                        <a href="{{ url_for('view_profile', user_id=influencer.id) }}" class="list-group-item list-group-item-action">
+                            <h5 class="mb-1">{{ influencer.user.username }}</h5>
+                            <p class="mb-1">{{ influencer.bio }}</p>
+                            <small><strong>Niche:</strong> {{ influencer.niche }}</small><br>
+                            <small><strong>Followers:</strong> {{ influencer.followers }}</small>
+                        </a>
+                    {% endfor %}
+                {% else %}
+                    <p>No influencers found matching your criteria.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

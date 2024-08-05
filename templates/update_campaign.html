@@ -1,0 +1,35 @@
+{% extends 'layout.html' %}
+
+{% block title %}
+    Update Campaign
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Update Campaign</h2>
+    <form method="POST">
+        <div class="mb-3">
+            <label for="name" class="form-label">Campaign Name</label>
+            <input type="text" class="form-control" id="name" name="name" value="{{ campaign.name }}" required>
+        </div>
+        <div class="mb-3">
+            <label for="description" class="form-label">Description</label>
+            <input type="text" class="form-control" id="description" name="description" value="{{ campaign.description }}">
+        </div>
+        <div class="mb-3">
+            <label for="start_date" class="form-label">Start Date</label>
+            <input type="date" class="form-control" id="start_date" name="start_date" value="{{ campaign.start_date }}">
+        </div>
+        <div class="mb-3">
+            <label for="end_date" class="form-label">End Date</label>
+            <input type="date" class="form-control" id="end_date" name="end_date" value="{{ campaign.end_date }}">
+        </div>
+        <div class="mb-3">
+            <label for="budget" class="form-label">Budget</label>
+            <input type="number" step="0.01" class="form-control" id="budget" name="budget" value="{{ campaign.budget }}" required>
+        </div>
+        
+        <button type="submit" class="btn btn-primary">Update</button>
+    </form>
+</div>
+{% endblock %}

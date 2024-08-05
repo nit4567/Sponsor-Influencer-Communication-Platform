@@ -1,0 +1,94 @@
+{% extends 'layout.html' %}
+
+{% block title %}Influencer Dashboard{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Profile Details -->
+    <div class="col-md-3 profile-details">
+        <h1>Hi Influencer,</h1>
+        <h4>Profile Details</h4>
+        <p><strong>Name:</strong> {{ influencer.name }}</p>
+        <p><strong>Email:</strong> {{ user.email_id }}</p>
+        <p><strong>Niche:</strong> {{ influencer.niche }}</p>
+        <p><strong>Followers:</strong> {{ influencer.followers }}</p>
+        <p><strong>Bio:</strong> {{ influencer.bio }}</p>
+    </div>
+
+    <!-- Tabs for Campaigns and Requests -->
+    <div class="col-md-9">
+        <!-- Navigation Tabs -->
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <a class="nav-link active" id="active-campaigns-tab" data-bs-toggle="tab" href="#activeCampaigns" role="tab" aria-controls="activeCampaigns" aria-selected="true">Active Campaigns</a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link" id="new-requests-tab" data-bs-toggle="tab" href="#newRequests" role="tab" aria-controls="newRequests" aria-selected="false">New Requests</a>
+            </li>
+        </ul>
+
+        <!-- Tab Content -->
+        <div class="tab-content mt-3" id="myTabContent">
+            <!-- Active Campaigns -->
+            <div class="tab-pane fade show active" id="activeCampaigns" role="tabpanel" aria-labelledby="active-campaigns-tab">
+                <h4>Active Campaigns</h4>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Campaign Name</th>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for campaign in active_campaigns %}
+                        <tr>
+                            <td><a href="{{ url_for('campaign_details', campaign_id=campaign.campaign_id) }}">{{ campaign.name }}</a></td>
+                            <td>{{ campaign.start_date }}</td>
+                            <td>{{ campaign.end_date }}</td>
+                            <td>{{ campaign.description }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- New Requests -->
+            <div class="tab-pane fade" id="newRequests" role="tabpanel" aria-labelledby="new-requests-tab">
+                <h4>New Requests</h4>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Created By</th>
+                            <th>Payment Amount</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for request in new_requests %}
+                        <tr>
+                            <td>{{ request.creator.username }}</td>
+                            <td>{{ request.payment_amount }}</td>
+                            <td>{{ request.status}}</td>
+                            <td>
+                                <a href="{{ url_for('ad_request_details', request_id=request.ad_request_id) }}" class="btn btn-info btn-sm">View</a>
+                                {% if request.created_for == user.id and request.status == 'pending'%}
+                                    <form action="{{ url_for('accept_ad_request', request_id=request.ad_request_id) }}" method="POST" style="display:inline;">
+                                        <button type="submit" class="btn btn-success btn-sm">Accept</button>
+                                    </form>
+                                    <form action="{{ url_for('reject_ad_request', request_id=request.ad_request_id) }}" method="POST" style="display:inline;">
+                                        <button type="submit" class="btn btn-danger btn-sm">Reject</button>
+                                    </form>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

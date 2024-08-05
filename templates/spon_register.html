@@ -1,0 +1,56 @@
+{% extends 'layout.html' %}
+
+{% block title %}
+Sponsor Registration
+{% endblock %}
+
+{% block content %}
+    <div id="sponsor-content" class="content">
+        <h1 class="display-4 mb-4">Sponsor Registration</h1>
+        <form action="{{ url_for('spon_register_post') }}" method="POST" class="form">
+            <input type="hidden" name="user_type" value="sponsor">
+            
+            <div class="mb-3">
+                <label for="username" class="form-label">Username</label>
+                <input type="text" id="username" name="username" required class="form-control">
+            </div>
+            
+            <div class="mb-3">
+                <label for="email" class="form-label">Email ID</label>
+                <input type="email" id="email" name="email" required class="form-control">
+            </div>
+            
+            <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" id="password" name="password" required class="form-control">
+            </div>
+            
+            <div class="mb-3">
+                <label for="confirm_password" class="form-label">Confirm Password</label>
+                <input type="password" id="confirm_password" name="confirm_password" required class="form-control">
+            </div>
+            
+            <div class="mb-3">
+                <label for="company_name" class="form-label">Company Name</label>
+                <input type="text" id="company_name" name="company_name" required class="form-control">
+            </div>
+            
+            <div class="mb-3">
+                <label for="industry" class="form-label">Industry</label>
+                <input type="text" id="industry" name="industry" class="form-control">
+            </div>
+            
+            <div class="mb-3">
+                <label for="budget" class="form-label">Budget</label>
+                <input type="number" id="budget" name="budget" required class="form-control">
+            </div>
+            
+            <div class="mb-3">
+                <label for="bio" class="form-label">Bio</label>
+                <textarea id="bio" name="bio" class="form-control"></textarea>
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Register</button>
+        </form>
+    </div>
+{% endblock %}

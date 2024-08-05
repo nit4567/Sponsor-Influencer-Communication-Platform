@@ -1,0 +1,28 @@
+{% extends 'layout.html' %}
+
+{% block title %}
+    Ad Request Details
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Ad Request Details</h2>
+    <div class="row">
+        <div class="col-md-6">
+            <p><strong>Request ID:</strong> {{ ad_request.ad_request_id }}</p>
+            <p><strong>Campaign:</strong> <a href="{{ url_for('campaign_details', campaign_id=ad_request.campaign.campaign_id) }}">{{ ad_request.campaign.name }}</a></p>
+            <p><strong>Created By:</strong> {{ ad_request.creator.username }}</p>
+            <p><strong>Created For:</strong> {{ ad_request.recipient.username }}</p>
+            <p><strong>Messages:</strong> {{ ad_request.messages }}</p>
+            <p><strong>Requirements:</strong> {{ ad_request.requirements }}</p>
+            <p><strong>Payment Amount:</strong> ${{ ad_request.payment_amount }}</p>
+            <p><strong>Status:</strong> {{ ad_request.status }}</p>
+        </div>
+        <div class="col-md-6">
+            {% if session.user_id == ad_request.created_by %}
+            <a href="{{ url_for('edit_ad_request', request_id=ad_request.ad_request_id) }}" class="btn btn-secondary">Edit</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

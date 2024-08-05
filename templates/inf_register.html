@@ -1,0 +1,71 @@
+{% extends 'layout.html' %}
+
+{% block title %}
+Influencer Registration
+{% endblock %}
+
+{% block content %}
+    <div id="influencer-content" class="content">
+        <h1 class="display-4 mb-4">Influencer Registration</h1>
+        <form action="{{ url_for('inf_register_post') }}" method="POST" class="form">
+            <input type="hidden" name="user_type" value="influencer">
+            
+            <div class="mb-3">
+                <label for="name" class="form-label">Name</label>
+                <input type="text" id="name" name="name" required class="form-control">
+            </div>
+
+            <div class="mb-3">
+                <label for="username" class="form-label">Username</label>
+                <input type="text" id="username" name="username" required class="form-control">
+            </div>
+            
+            <div class="mb-3">
+                <label for="email" class="form-label">Email ID</label>
+                <input type="email" id="email" name="email" required class="form-control">
+            </div>
+            
+            <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" id="password" name="password" required class="form-control">
+            </div>
+            
+            <div class="mb-3">
+                <label for="confirm_password" class="form-label">Confirm Password</label>
+                <input type="password" id="confirm_password" name="confirm_password" required class="form-control">
+            </div>
+            
+            <div class="mb-3">
+                <label for="niche" class="form-label">Niche</label>
+                <select id="niche" name="niche" class="form-control" required>
+                    <option value="" disabled selected>Select your niche</option>
+                    <option value="Fashion">Fashion</option>
+                    <option value="Fitness">Fitness</option>
+                    <option value="Travel">Travel</option>
+                    <option value="Food">Food</option>
+                    <option value="Beauty">Beauty</option>
+                    <option value="Technology">Technology</option>
+                    <option value="Lifestyle">Lifestyle</option>
+                    <option value="Health">Health</option>
+                    <option value="Music">Music</option>
+                    <option value="Gaming">Gaming</option>
+                    <option value="Art">Art</option>
+                    <option value="Education">Education</option>
+                    <option value="Finance">Finance</option>
+                </select>
+            </div>
+            
+            <div class="mb-3">
+                <label for="bio" class="form-label">Bio</label>
+                <textarea id="bio" name="bio" class="form-control"></textarea>
+            </div>
+            
+            <div class="mb-3">
+                <label for="followers" class="form-label">Followers</label>
+                <input type="number" id="followers" name="followers" required class="form-control">
+            </div>
+
+            <button type="submit" class="btn btn-primary">Register</button>
+        </form>
+    </div>
+{% endblock %}

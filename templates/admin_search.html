@@ -1,0 +1,85 @@
+{% extends "layout.html" %}
+
+{% block title %}Admin Search Page{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <!-- Influencers Block -->
+            <div class="col-md-6 col-lg-3 mb-4">
+                <a href="{{ url_for('sponsor_search') }}" class="text-decoration-none">
+                    <div class="search-block bg-primary">
+                        <h4>Influencers</h4>
+                    </div>
+                </a>
+            </div>
+            <!-- Sponsors Block -->
+            <div class="col-md-6 col-lg-3 mb-4">
+                <a href="{{ url_for('admin_search_sponsors') }}" class="text-decoration-none">
+                    <div class="search-block bg-success">
+                        <h4>Sponsors</h4>
+                    </div>
+                </a>
+            </div>
+            <!-- Campaigns Block -->
+            <div class="col-md-6 col-lg-3 mb-4">
+                <a href="{{ url_for('admin_search_campaigns') }}" class="text-decoration-none">
+                    <div class="search-block bg-warning">
+                        <h4>Campaigns</h4>
+                    </div>
+                </a>
+            </div>
+            <!-- Ad Requests Block -->
+            <div class="col-md-6 col-lg-3 mb-4">
+                <a href="{{ url_for('admin_search_ad_requests') }}" class="text-decoration-none">
+                    <div class="search-block bg-danger">
+                        <h4>Ad Requests</h4>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block styles %}
+    <style>
+        .search-block {
+            height: 400px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            text-align: center;
+            border-radius: 0.5rem;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .search-block h4 {
+            margin: 0;
+        }
+
+        .search-block:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Ensure each block occupies one quadrant in a 2x2 grid */
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .col-md-6.col-lg-3 {
+            flex: 1 0 50%; /* For medium screens, take 50% width */
+            max-width: 50%;
+        }
+
+        @media (min-width: 992px) {
+            .col-lg-3 {
+                flex: 1 0 25%; /* For large screens, take 25% width */
+                max-width: 25%;
+            }
+        }
+    </style>
+{% endblock %}

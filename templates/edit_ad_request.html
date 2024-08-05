@@ -1,0 +1,45 @@
+{% extends 'layout.html' %}
+
+{% block title %}
+    Edit Ad Request
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Edit Ad Request</h2>
+    <form action="{{ url_for('edit_ad_request', request_id=ad_request.ad_request_id) }}" method="POST">
+        
+        <div class="form-group">
+            <label for="created_for">Created For</label>
+            <select name="created_for" id="created_for" class="form-control">
+                {% for user in users %}
+                <option value="{{ user.id }}" {% if user.id == ad_request.created_for %}selected{% endif %}>{{ user.username }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="messages">Messages</label>
+            <input type="text" name="messages" id="messages" class="form-control" value="{{ ad_request.messages }}">
+        </div>
+        <div class="form-group">
+            <label for="requirements">Requirements</label>
+            <textarea name="requirements" id="requirements" class="form-control">{{ ad_request.requirements }}</textarea>
+        </div>
+        <div class="form-group">
+            <label for="payment_amount">Payment Amount</label>
+            <input type="number" name="payment_amount" id="payment_amount" class="form-control" step="0.01" value="{{ ad_request.payment_amount }}">
+        </div>
+        <div class="form-group">
+            <label for="status">Status</label>
+            <select name="status" id="status" class="form-control">
+                <option value="ongoing" {% if ad_request.status == 'ongoing' %}selected{% endif %}>Ongoing</option>
+                <option value="accepted" {% if ad_request.status == 'accepted' %}selected{% endif %}>Accepted</option>
+                <option value="flagged" {% if ad_request.status == 'flagged' %}selected{% endif %}>Flagged</option>
+                <option value="deleted" {% if ad_request.status == 'deleted' %}selected{% endif %}>Deleted</option>
+                <option value="completed" {% if ad_request.status == 'completed' %}selected{% endif %}>Completed</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+    </form>
+</div>
+{% endblock %}

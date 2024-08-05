@@ -1,0 +1,66 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Search Ad Requests</h2>
+    <form action="/admin/search/ad-requests" method="GET">
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <label for="created_by" class="form-label">Created By (User ID)</label>
+                <input type="number" id="created_by" name="created_by" class="form-control" placeholder="Enter creator user ID">
+            </div>
+            <div class="col-md-4">
+                <label for="created_for" class="form-label">Created For (User ID)</label>
+                <input type="number" id="created_for" name="created_for" class="form-control" placeholder="Enter recipient user ID">
+            </div>
+            <div class="col-md-4">
+                <label for="status" class="form-label">Status</label>
+                <select id="status" name="status" class="form-select">
+                    <option value="">Select status</option>
+                    <option value="ongoing">Ongoing</option>
+                    <option value="pending">Pending</option>
+                    <option value="flagged">Flagged</option>
+                    <option value="deleted">Deleted</option>
+                    <option value="completed">Completed</option>
+                    <option value="rejected">Rejected</option>
+                </select>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label for="payment_min" class="form-label">Minimum Payment</label>
+                <input type="number" id="payment_min" name="payment_min" class="form-control" placeholder="Enter minimum payment">
+            </div>
+            <div class="col-md-6">
+                <label for="payment_max" class="form-label">Maximum Payment</label>
+                <input type="number" id="payment_max" name="payment_max" class="form-control" placeholder="Enter maximum payment">
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div class="col-md-12">
+                <button type="submit" class="btn btn-primary">Search</button>
+            </div>
+        </div>
+    </form>
+
+    <!-- Display Search Results -->
+    {% if ad_requests %}
+    <div class="mt-4">
+        <h3>Results</h3>
+        <ul class="list-group">
+            {% for ad_request in ad_requests %}
+            <li class="list-group-item">
+                <strong>ID: {{ ad_request.ad_request_id }}</strong><br>
+                Created By (User ID): {{ ad_request.created_by }}<br>
+                Created For (User ID): {{ ad_request.created_for }}<br>
+                Payment Amount: {{ ad_request.payment_amount }}<br>
+                Status: {{ ad_request.status }}
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% else %}
+    <p>No ad requests found matching the criteria.</p>
+    {% endif %}
+</div>
+{% endblock %}

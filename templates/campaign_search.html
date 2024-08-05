@@ -1,0 +1,66 @@
+{% extends 'layout.html' %}
+
+{% block title %}
+    Search Campaigns
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <!-- Filter Section -->
+        <div class="col-md-4">
+            <h2>Filter Campaigns</h2>
+            <form action="{{ url_for('influencer_search') }}" method="POST">
+                <div class="form-group">
+                    <label for="search_query">Campaign Name</label>
+                    <input type="text" name="search_query" id="search_query" class="form-control" placeholder="Enter campaign name">
+                </div>
+                <div class="form-group">
+                    <label for="min_budget">Minimum Budget</label>
+                    <input type="number" name="min_budget" id="min_budget" class="form-control" placeholder="0.00" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label for="max_budget">Maximum Budget</label>
+                    <input type="number" name="max_budget" id="max_budget" class="form-control" placeholder="0.00" step="0.01">
+                </div>
+                <div class="form-group">
+                    <label>Campaign Status</label><br>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="status_filter" value="ongoing" id="ongoing">
+                        <label class="form-check-label" for="ongoing">Ongoing</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="status_filter" value="accepted" id="accepted">
+                        <label class="form-check-label" for="accepted">Accepted</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="status_filter" value="completed" id="completed">
+                        <label class="form-check-label" for="completed">Completed</label>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Search</button>
+            </form>
+        </div>
+
+        <!-- Search Results Section -->
+        <div class="col-md-8">
+            <h3>Search Results</h3>
+            <div class="list-group">
+                {% if search_results %}
+                    {% for campaign in search_results %}
+                        <a href="{{ url_for('campaign_details', campaign_id=campaign.campaign_id) }}" class="list-group-item list-group-item-action">
+                            <h5 class="mb-1">{{ campaign.name }}</h5>
+                            <p class="mb-1">{{ campaign.description }}</p>
+                            <small><strong>Start Date:</strong> {{ campaign.start_date }}</small><br>
+                            <small><strong>End Date:</strong> {{ campaign.end_date }}</small><br>
+                            <small><strong>Budget:</strong> {{ campaign.budget }}</small>
+                        </a>
+                    {% endfor %}
+                {% else %}
+                    <p>No campaigns found matching your criteria.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

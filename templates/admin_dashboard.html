@@ -1,0 +1,162 @@
+{% extends 'layout.html' %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Admin Details -->
+    <div class="col-md-3 admin-details">
+        <h1>Admin Dashboard</h1>
+    </div>
+
+    <!-- Tabs for Admin Dashboard -->
+    <div class="col-md-9">
+        <!-- Navigation Tabs -->
+        <ul class="nav nav-tabs" id="adminTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <a class="nav-link active" id="flagged-campaigns-tab" data-bs-toggle="tab" href="#flaggedCampaigns" role="tab" aria-controls="flaggedCampaigns" aria-selected="true">Flagged Campaigns</a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link" id="flagged-ad-requests-tab" data-bs-toggle="tab" href="#flaggedAdRequests" role="tab" aria-controls="flaggedAdRequests" aria-selected="false">Flagged Ad Requests</a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link" id="flagged-influencers-tab" data-bs-toggle="tab" href="#flaggedInfluencers" role="tab" aria-controls="flaggedInfluencers" aria-selected="false">Flagged Influencers</a>
+            </li>
+            <li class="nav-item" role="presentation">
+                <a class="nav-link" id="flagged-sponsors-tab" data-bs-toggle="tab" href="#flaggedSponsors" role="tab" aria-controls="flaggedSponsors" aria-selected="false">Flagged Sponsors</a>
+            </li>
+        </ul>
+
+        <!-- Tab Content -->
+        <div class="tab-content mt-3" id="adminTabContent">
+            <!-- Flagged Campaigns -->
+            <div class="tab-pane fade show active" id="flaggedCampaigns" role="tabpanel" aria-labelledby="flagged-campaigns-tab">
+                <h4>Flagged Campaigns</h4>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Campaign Name</th>
+                            <th>Description</th>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for campaign in flagged_campaigns %}
+                        <tr>
+                            <td><a href="{{ url_for('campaign_details', campaign_id=campaign.campaign_id) }}">{{ campaign.name }}</a></td>
+                            <td>{{ campaign.description }}</td>
+                            <td>{{ campaign.start_date }}</td>
+                            <td>{{ campaign.end_date }}</td>
+                            <td>
+                                <form action="{{ url_for('unflag_campaign', campaign_id=campaign.campaign_id) }}" method="POST" style="display:inline;">
+                                    <button type="submit" class="btn btn-success btn-sm">Unflag</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Flagged Ad Requests -->
+            <div class="tab-pane fade" id="flaggedAdRequests" role="tabpanel" aria-labelledby="flagged-ad-requests-tab">
+                <h4>Flagged Ad Requests</h4>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Ad Request ID</th>
+                            <th>Created By</th>
+                            <th>Created For</th>
+                            <th>Messages</th>
+                            <th>Requirements</th>
+                            <th>Payment Amount</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for request in flagged_ad_requests %}
+                        <tr>
+                            <td>{{ request.ad_request_id }}</td>
+                            <td><a href="{{ url_for('user_profile', user_id=request.created_by) }}">{{ request.creator.username }}</a></td>
+                            <td><a href="{{ url_for('user_profile', user_id=request.created_for) }}">{{ request.recipient.username }}</a></td>
+                            <td>{{ request.messages }}</td>
+                            <td>{{ request.requirements }}</td>
+                            <td>{{ request.payment_amount }}</td>
+                            <td>
+                                <form action="{{ url_for('unflag_ad_request', request_id=request.ad_request_id) }}" method="POST" style="display:inline;">
+                                    <button type="submit" class="btn btn-success btn-sm">Unflag</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Flagged Influencers -->
+            <div class="tab-pane fade" id="flaggedInfluencers" role="tabpanel" aria-labelledby="flagged-influencers-tab">
+                <h4>Flagged Influencers</h4>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Niche</th>
+                            <th>Bio</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for influencer in flagged_influencers %}
+                        <tr>
+                            <td>{{ influencer.username }}</td>
+                            <td>{{ influencer.email_id }}</td>
+                            <td>{{ influencer.niche }}</td>
+                            <td>{{ influencer.bio }}</td>
+                            <td>
+                                <form action="{{ url_for('unflag_user', user_id=influencer.id) }}" method="POST" style="display:inline;">
+                                    <button type="submit" class="btn btn-success btn-sm">Unflag</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Flagged Sponsors -->
+            <div class="tab-pane fade" id="flaggedSponsors" role="tabpanel" aria-labelledby="flagged-sponsors-tab">
+                <h4>Flagged Sponsors</h4>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Company Name</th>
+                            <th>Industry</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for sponsor in flagged_sponsors %}
+                        <tr>
+                            <td>{{ sponsor.username }}</td>
+                            <td>{{ sponsor.email_id }}</td>
+                            <td>{{ sponsor.company_name }}</td>
+                            <td>{{ sponsor.industry }}</td>
+                            <td>
+                                <form action="{{ url_for('unflag_user', user_id=sponsor.id) }}" method="POST" style="display:inline;">
+                                    <button type="submit" class="btn btn-success btn-sm">Unflag</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

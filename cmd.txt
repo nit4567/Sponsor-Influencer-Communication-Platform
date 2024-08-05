@@ -1,0 +1,5 @@
+# activate the env
+myenv\Scripts\activate
+
+To run the file 
+flask run

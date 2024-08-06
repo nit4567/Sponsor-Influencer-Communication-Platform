@@ -29,7 +29,12 @@
     {% endif %}
 
     {% if session.role_id == 1 %}
-        <a href="{{ url_for('flag_user',user_id = user.id) }}" class="btn btn-primary">Flag</a>     
+        <form action="{{ url_for('flag_user', user_id=user.id) }}" method="POST">
+            <button type="submit" class="btn btn-danger">
+                <i class="fas fa-flag"></i> Flag User
+            </button>
+            
+        </form>   
     {% endif %}
 </div>
 {% endblock %}

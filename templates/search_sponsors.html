@@ -1,0 +1,50 @@
+{% extends 'layout.html' %}
+
+{% block title %}
+    Search Sponsors
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <!-- Filter Section -->
+        <div class="col-md-4">
+            <h2>Filter Sponsors</h2>
+            <form action="{{ url_for('search_sponsors') }}" method="POST">
+                <div class="mb-3">
+                    <label for="industry" class="form-label">Industry</label>
+                    <input type="text" id="industry" name="industry" class="form-control" placeholder="Enter industry">
+                </div>
+                <div class="form-group">
+                    <label for="min_budget">Minimum Budget</label>
+                    <input type="number" step="0.01" name="min_budget" id="min_budget" class="form-control" placeholder="0">
+                </div>
+                <div class="form-group">
+                    <label for="max_budget">Maximum Budget</label>
+                    <input type="number" step="0.01" name="max_budget" id="max_budget" class="form-control" placeholder="0">
+                </div>
+                <button type="submit" class="btn btn-primary">Search</button>
+            </form>
+        </div>
+
+        <!-- Search Results Section -->
+        <div class="col-md-8">
+            <h3>Search Results</h3>
+            <div class="list-group">
+                {% if search_results %}
+                    {% for sponsor in search_results %}
+                        <a href="{{ url_for('view_profile', user_id=sponsor.id) }}" class="list-group-item list-group-item-action">
+                            <h5 class="mb-1">{{ sponsor.company_name }}</h5>
+                            <p class="mb-1">{{ sponsor.bio }}</p>
+                            <small><strong>Industry:</strong> {{ sponsor.industry }}</small><br>
+                            <small><strong>Budget:</strong> ${{ sponsor.budget }}</small>
+                        </a>
+                    {% endfor %}
+                {% else %}
+                    <p>No sponsors found matching your criteria.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

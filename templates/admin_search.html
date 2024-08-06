@@ -15,7 +15,7 @@
             </div>
             <!-- Sponsors Block -->
             <div class="col-md-6 col-lg-3 mb-4">
-                <a href="{{ url_for('admin_search_sponsors') }}" class="text-decoration-none">
+                <a href="{{ url_for('search_sponsors') }}" class="text-decoration-none">
                     <div class="search-block bg-success">
                         <h4>Sponsors</h4>
                     </div>
@@ -23,20 +23,13 @@
             </div>
             <!-- Campaigns Block -->
             <div class="col-md-6 col-lg-3 mb-4">
-                <a href="{{ url_for('admin_search_campaigns') }}" class="text-decoration-none">
+                <a href="{{ url_for('influencer_search') }}" class="text-decoration-none">
                     <div class="search-block bg-warning">
                         <h4>Campaigns</h4>
                     </div>
                 </a>
             </div>
-            <!-- Ad Requests Block -->
-            <div class="col-md-6 col-lg-3 mb-4">
-                <a href="{{ url_for('admin_search_ad_requests') }}" class="text-decoration-none">
-                    <div class="search-block bg-danger">
-                        <h4>Ad Requests</h4>
-                    </div>
-                </a>
-            </div>
+            
         </div>
     </div>
 {% endblock %}

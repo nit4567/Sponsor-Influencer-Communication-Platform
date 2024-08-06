@@ -19,18 +19,31 @@
             <p><strong>Goals:</strong> {{ campaign.goals }}</p>
             <p><strong>Niche:</strong> {{ campaign.niche }}</p>
             
-            {% if session['role_id']==2 %}
+            {% if campaign.sponsor_id == session['user_id'] and session['role_id'] == 2 %}
             <a href="{{ url_for('update_campaign', campaign_id=campaign.campaign_id) }}" class="btn btn-primary">Update</a>
             <a href="{{ url_for('delete_campaign', campaign_id=campaign.campaign_id) }}" class="btn btn-danger">Delete</a>
             {% endif %}
+
+            {% if session.role_id == 1 %}
+            <form action="{{ url_for('flag_campaign', campaign_id=campaign.campaign_id) }}" method="POST">
+                <button type="submit" class="btn btn-danger">
+                    <i class="fas fa-flag"></i> Flag Campaign
+                </button>
+                
+            </form>   
+        {% endif %}
         </div>
 
         <!-- Ad Requests -->
         <div class="col-md-8">
+            
             <div class="d-flex justify-content-between align-items-center">
                 <h3>Ad Requests</h3>
+                {% if campaign.sponsor_id == session['user_id'] and session['role_id'] == 2 %}
                 <a href="{{ url_for('add_ad_request', campaign_id=campaign.campaign_id) }}" class="btn btn-success">Add</a>
-            </div>
+                {% endif %}
+            </div>   
+            
             <table class="table table-striped mt-2">
                 <thead>
                     <tr>
@@ -43,7 +56,7 @@
                 <tbody>
                     {% for request in requests %}
                     <tr>
-                        <td><a href="{{ url_for('user_profile', user_id=request.created_by) }}">{{ request.creator.username }}</a></td>
+                        <td><a href="{{ url_for('view_profile', user_id=request.created_by) }}">{{ request.creator.username }}</a></td>
                         <td>{{ request.payment_amount }}</td>
                         <td>{{ request.status}}</td>
                         <td>

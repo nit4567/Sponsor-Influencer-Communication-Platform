@@ -208,7 +208,7 @@ def influencer_dashboard():
     active_campaigns = Campaign.query.filter(
         Campaign.campaign_id.in_(ad_request_campaign_ids),
         Campaign.niche == influencer.niche,
-        Campaign.campaign_status.in_(['ongoing', 'accepted', 'completed']),
+        Campaign.campaign_status == 'ongoing',
     ).all()
 
     new_requests = AdRequest.query.filter(
@@ -236,15 +236,12 @@ def sponsor_dashboard():
 @auth_rep
 @role_required(1)
 def admin_dashboard():
-    # Fetch flagged campaigns, ad requests, influencers, and sponsors
     flagged_campaigns = Campaign.query.filter_by(campaign_status='flagged').all()
-    flagged_ad_requests = AdRequest.query.filter_by(status='flagged').all()
     flagged_influencers = User.query.filter_by(is_flagged=True, role_id=3).all()
     flagged_sponsors = User.query.filter_by(is_flagged=True, role_id=2).all()
     
     return render_template('admin_dashboard.html', 
                            flagged_campaigns=flagged_campaigns, 
-                           flagged_ad_requests=flagged_ad_requests,
                            flagged_influencers=flagged_influencers,
                            flagged_sponsors=flagged_sponsors)
 
@@ -255,99 +252,15 @@ def admin_search():
     return render_template('admin_search.html')
 
 
-@app.route('/admin/search/sponsors', methods=['GET'])
-@auth_rep
-def admin_search_sponsors():
-    company_name = request.args.get('company_name')
-    industry = request.args.get('industry')
-    budget_min = request.args.get('budget_min')
-    budget_max = request.args.get('budget_max')
-    
-    # Initialize the query
-    query = Sponsor.query
-    
-    # Apply filters based on the search criteria
-    if company_name:
-        query = query.filter(Sponsor.company_name.ilike(f'%{company_name}%'))
-    if industry:
-        query = query.filter(Sponsor.industry.ilike(f'%{industry}%'))
-    if budget_min:
-        query = query.filter(Sponsor.budget >= int(budget_min))
-    if budget_max:
-        query = query.filter(Sponsor.budget <= int(budget_max))
-    
-    # Execute the query
-    sponsors = query.all()
-    
-    return render_template('admin_search_sponsors.html', sponsors=sponsors)
-
-@app.route('/admin/search/campaigns', methods=['GET'])
-@auth_rep
-def admin_search_campaigns():
-    campaign_name = request.args.get('campaign_name')
-    niche = request.args.get('niche')
-    visibility = request.args.get('visibility')
-    budget_min = request.args.get('budget_min')
-    budget_max = request.args.get('budget_max')
-    
-    # Initialize the query, ensuring only ongoing campaigns are fetched
-    query = Campaign.query.filter_by(campaign_status='ongoing')
-    
-    # Apply filters based on the search criteria
-    if campaign_name:
-        query = query.filter(Campaign.name.ilike(f'%{campaign_name}%'))
-    if niche:
-        query = query.filter(Campaign.niche == niche)
-    if visibility:
-        query = query.filter(Campaign.visibility == visibility)
-    if budget_min:
-        query = query.filter(Campaign.budget >= float(budget_min))
-    if budget_max:
-        query = query.filter(Campaign.budget <= float(budget_max))
-    
-    # Execute the query
-    campaigns = query.all()
-    
-    return render_template('admin_search_campaigns.html', campaigns=campaigns)
-
-@app.route('/admin/search/ad-requests', methods=['GET'])
-@auth_rep
-def admin_search_ad_requests():
-    created_by = request.args.get('created_by')
-    created_for = request.args.get('created_for')
-    status = request.args.get('status')
-    payment_min = request.args.get('payment_min')
-    payment_max = request.args.get('payment_max')
-    
-    # Initialize the query
-    query = AdRequest.query
-    
-    # Apply filters based on the search criteria
-    if created_by:
-        query = query.filter(AdRequest.created_by == int(created_by))
-    if created_for:
-        query = query.filter(AdRequest.created_for == int(created_for))
-    if status:
-        query = query.filter(AdRequest.status == status)
-    if payment_min:
-        query = query.filter(AdRequest.payment_amount >= float(payment_min))
-    if payment_max:
-        query = query.filter(AdRequest.payment_amount <= float(payment_max))
-    
-    # Execute the query
-    ad_requests = query.all()
-    
-    return render_template('admin_search_ad_requests.html', ad_requests=ad_requests)
-
 @app.route('/admin/flag_user/<int:user_id>', methods=['POST'])
 @auth_rep
 @role_required(1)
 def flag_user(user_id):
-    user = User.query.get_or_404(user_id)
+    user = User.query.get(user_id)
     user.is_flagged = True
     db.session.commit()
     flash('User has been flagged.', 'success')
-    return redirect('admin_dashboard')
+    return redirect(url_for('admin_dashboard'))
 
 @app.route('/admin/unflag_user/<int:user_id>', methods=['POST'])
 @auth_rep
@@ -363,7 +276,7 @@ def unflag_user(user_id):
 @auth_rep
 @role_required(1)
 def flag_campaign(campaign_id):
-    campaign = Campaign.query.get_or_404(campaign_id)
+    campaign = Campaign.query.get(campaign_id)
     campaign.campaign_status = 'flagged'
     db.session.commit()
     flash('Campaign has been flagged.', 'success')
@@ -379,30 +292,31 @@ def unflag_campaign(campaign_id):
     flash('Campaign has been unflagged.', 'success')
     return redirect(request.referrer)
 
-@app.route('/admin/flag_ad_request/<int:request_id>', methods=['POST'])
-@auth_rep
-@role_required(1)
-def flag_ad_request(request_id):
-    request = AdRequest.query.get_or_404(request_id)
-    request.status = 'flagged'
-    db.session.commit()
-    flash('Ad request has been flagged.', 'success')
-    return redirect(request.referrer)
-
-@app.route('/admin/unflag_ad_request/<int:request_id>', methods=['POST'])
-@auth_rep
-@role_required(1)
-def unflag_ad_request(request_id):
-    request = AdRequest.query.get_or_404(request_id)
-    request.status = 'pending'  # or whatever the default status should be
-    db.session.commit()
-    flash('Ad request has been unflagged.', 'success')
-    return redirect(request.referrer)
-
 @app.route('/admin_dashboard/stats')
 @auth_rep
 def stats():
-    return render_template('stats.html')
+    active_influencers = InfluencerProfile.query.join(User).filter(User.is_flagged == False).count()
+    active_sponsors = Sponsor.query.join(User).filter(User.is_flagged == False).count()
+    total_campaigns = Campaign.query.count()
+    public_campaigns = Campaign.query.filter(Campaign.visibility == 'public').count()
+    private_campaigns = Campaign.query.filter(Campaign.visibility == 'private').count()
+    total_ad_requests = AdRequest.query.count()
+    flagged_influencers = User.query.filter(User.is_flagged == True, User.role_id == 3).count()
+    flagged_sponsors = User.query.filter(User.is_flagged == True, User.role_id == 2).count()
+    
+    stats_data = {
+        'active_influencers': active_influencers,
+        'active_sponsors': active_sponsors,
+        'total_campaigns': total_campaigns,
+        'public_campaigns': public_campaigns,
+        'private_campaigns': private_campaigns,
+        'total_ad_requests': total_ad_requests,
+        'flagged_influencers': flagged_influencers,
+        'flagged_sponsors': flagged_sponsors
+    }
+
+    return render_template('stats.html', stats_data=stats_data)
+
 
 @app.route('/campaign_details/<int:campaign_id>')
 @auth_rep
@@ -667,24 +581,28 @@ def edit_ad_request(request_id):
     return render_template('edit_ad_request.html', ad_request=ad_request, users=users)
 
 
-@app.route('/influencer_search', methods=['GET', 'POST'])
+@app.route('/campaign_search', methods=['GET', 'POST'])
 @auth_rep
-def influencer_search():
-    id = session.get('user_id')
-    influencer = InfluencerProfile.query.filter_by(id=id).first()
-    search_results = []
+def influencer_search():  #will be used by influencer and admin to search for campaigns
+    
+    if session['role_id'] == 1:
+            query = Campaign.query
+    else:
+        id = session.get('user_id')
+        influencer = InfluencerProfile.query.filter_by(id=id).first()
+        query = Campaign.query.filter(
+            Campaign.visibility == 'public',
+            Campaign.niche == influencer.niche,
+            Campaign.campaign_status == 'ongoing'
+        )
+
 
     if request.method == 'POST':
         search_query = request.form.get('search_query', '')
         min_budget = request.form.get('min_budget', type=float)
         max_budget = request.form.get('max_budget', type=float)
-        status_filter = request.form.getlist('status_filter')
 
-        query = Campaign.query.filter(
-            Campaign.visibility == 'public',
-            Campaign.niche == influencer.niche
-        )
-
+        
         if search_query:
             query = query.filter(Campaign.name.ilike(f"%{search_query}%"))
         
@@ -694,38 +612,80 @@ def influencer_search():
         if max_budget is not None:
             query = query.filter(Campaign.budget <= max_budget)
 
-        if status_filter:
-            query = query.filter(Campaign.campaign_status.in_(status_filter))
 
-        search_results = query.all()
+    search_results = query.all()
     
-    return render_template('campaign_search.html', influencer=influencer, search_results=search_results)
+    return render_template('campaign_search.html', search_results=search_results)
 
-@app.route('/sponsor_search', methods=['GET', 'POST'])
+@app.route('/influencer_search', methods=['GET', 'POST'])
 @auth_rep
-def sponsor_search():
-    search_results = []
+def sponsor_search():  # will be used by sponsors and admin to search influencers 
+    if session['role_id'] == 1:
+        query = InfluencerProfile.query
+    else:
+       query = InfluencerProfile.query.join(User).filter(User.is_flagged == False)
 
     if request.method == 'POST':
         niche = request.form.get('niche', '')
         min_followers = request.form.get('min_followers', type=int)
         max_followers = request.form.get('max_followers', type=int)
 
-        query = InfluencerProfile.query
-
         if niche:
             query = query.filter(InfluencerProfile.niche.ilike(f"%{niche}%"))
-        
+
         if min_followers is not None:
             query = query.filter(InfluencerProfile.followers >= min_followers)
-        
+
         if max_followers is not None:
             query = query.filter(InfluencerProfile.followers <= max_followers)
 
-        search_results = query.all()
+    search_results = query.all()
 
     return render_template('influencer_search.html', search_results=search_results)
 
+@app.route('/search_sponsors', methods=['GET', 'POST'])
+@auth_rep
+def search_sponsors():  # Used by admin to search for sponsors
+    if session['role_id'] == 1:
+        query = Sponsor.query
+    else:
+        query = Sponsor.query.filter(Sponsor.is_flagged == False)
+
+    if request.method == 'POST':
+        search_query = request.form.get('search_query', '')
+        min_budget = request.form.get('min_budget', type=float)
+        max_budget = request.form.get('max_budget', type=float)
+        industry = request.form.get('industry', '')
+
+        if search_query:
+            query = query.filter(Sponsor.name.ilike(f"%{search_query}%"))
+        
+        if industry:
+            query = query.filter(Sponsor.industry.ilike(f"%{industry}%"))
+        
+        if min_budget is not None:
+            query = query.filter(Sponsor.budget >= min_budget)
+        
+        if max_budget is not None:
+            query = query.filter(Sponsor.budget <= max_budget)
+
+    search_results = query.all()
+    
+    return render_template('search_sponsors.html', search_results=search_results)
+
+
+# @app.route('/sponsor_search', methods=['GET', 'POST'])
+# @auth_rep
+# def search():
+#     query = Sponsor.query  # Change this to SponsorProfile.query if using a separate model for sponsors
+
+#     if request.method == 'POST':
+#         budget = request.form.get('budget', type=int)
+#         if budget is not None:
+#             query = query.filter(Sponsor.budget >= budget)  # Assuming you have a separate model for sponsors
+#     search_results = query.all()
+
+#     return render_template('search.html', search_results=search_results)
 
 @app.route('/accept_ad_request/<int:request_id>', methods=['POST'])
 @auth_rep

@@ -164,7 +164,7 @@ def check_campaign_editable(f):
     def decorated_function(*args, **kwargs):
         campaign_id = kwargs.get('campaign_id')
         campaign = Campaign.query.get(campaign_id)
-        if campaign.campaign_status in ['completed', 'deleted']:
+        if campaign.campaign_status in ['completed', 'deleted','flagged']:
             flash('This campaign cannot be modified.', 'error')
             return redirect(url_for('sponsor_dashboard'))
         return f(*args, **kwargs)
@@ -227,7 +227,7 @@ def sponsor_dashboard():
     sponsor = Sponsor.query.filter_by(id=user_id).first_or_404()
     active_campaigns = Campaign.query.filter(Campaign.sponsor_id == sponsor.sponsor_id, 
                                              Campaign.campaign_status.in_(['ongoing', 'completed'])).all()
-    new_requests = AdRequest.query.filter_by(created_for=user_id).all()
+    new_requests = AdRequest.query.filter(AdRequest.created_for==user_id,AdRequest.status.in_(['ongoing', 'completed','pending'])).all()
 
     return render_template('dashboard_spon.html', sponsor=sponsor, active_campaigns=active_campaigns, new_requests=new_requests, user=user)
 
@@ -371,7 +371,7 @@ def create_campaign():
         return redirect(url_for('sponsor_dashboard'))  
     return render_template('create_campaign.html')
 
-@app.route('/campaign/<int:campaign_id>/update', methods=['POST'])
+@app.route('/campaign/<int:campaign_id>/update', methods=['GET','POST'])
 @auth_rep
 @check_campaign_editable
 def update_campaign(campaign_id):
@@ -382,24 +382,23 @@ def update_campaign(campaign_id):
         flash('You do not have permission to access this page','error')
         return redirect(url_for('index'))
 
-    campaign = Campaign.query.filter_by(campaign_id=campaign_id, sponsor_id=user_id).first()
+    campaign = Campaign.query.filter_by(campaign_id=campaign_id).first()
 
     if not campaign:
         flash('Campaign not found or you do not have permission to update this campaign','error')
         return redirect(url_for('sponsor_dashboard'))
 
-    # Update campaign details from form
-    campaign.name = request.form.get('name')
-    campaign.start_date = request.form.get('start_date')
-    campaign.end_date = request.form.get('end_date')
-    campaign.budget = request.form.get('budget')
-    campaign.goals = request.form.get('goals')
-    campaign.niche = request.form.get('niche')
-    campaign.visibility = request.form.get('visibility')
+    if request.method == 'POST':
+        campaign.name = request.form.get('name')
+        campaign.budget = request.form.get('budget')
+        campaign.goals = request.form.get('goals')
+        campaign.niche = request.form.get('niche')
+        campaign.visibility = request.form.get('visibility')
 
-    db.session.commit()
-    flash('Campaign updated successfully')
-    return redirect(url_for('sponsor_dashboard'))
+        db.session.commit()
+        flash('Campaign updated successfully')
+        return redirect(url_for('sponsor_dashboard'))
+    return render_template('update_campaign.html',campaign=campaign)
 
 @app.route('/campaign/<int:campaign_id>/delete', methods=['POST'])
 @auth_rep
@@ -422,6 +421,7 @@ def delete_campaign(campaign_id):
     db.session.commit()
     flash('Campaign marked as deleted')
     return redirect(url_for('sponsor_dashboard'))
+
 
 @app.route('/profile', methods=['GET'])
 @auth_rep
@@ -480,8 +480,8 @@ def update_profile():
             profile.industry = request.form.get('industry')
 
         db.session.commit()
-        flash('Profile updated successfully!')
-        return redirect(url_for('view_profile'))
+        flash('Profile updated successfully!','success')
+        return redirect(url_for('user_profile'))
 
     return render_template('update_profile.html', user=user,profile=profile, role_id=role_id)
 
@@ -674,19 +674,6 @@ def search_sponsors():  # Used by admin to search for sponsors
     return render_template('search_sponsors.html', search_results=search_results)
 
 
-# @app.route('/sponsor_search', methods=['GET', 'POST'])
-# @auth_rep
-# def search():
-#     query = Sponsor.query  # Change this to SponsorProfile.query if using a separate model for sponsors
-
-#     if request.method == 'POST':
-#         budget = request.form.get('budget', type=int)
-#         if budget is not None:
-#             query = query.filter(Sponsor.budget >= budget)  # Assuming you have a separate model for sponsors
-#     search_results = query.all()
-
-#     return render_template('search.html', search_results=search_results)
-
 @app.route('/accept_ad_request/<int:request_id>', methods=['POST'])
 @auth_rep
 @check_adr_editable
@@ -696,8 +683,10 @@ def accept_ad_request(request_id):
     ad_request.status = 'ongoing'
     db.session.commit()
     flash('Ad Request accepted successfully.', 'success')
-
-    return redirect(url_for(request.referrer))
+    if session['role_id']==3:
+        return redirect(url_for('influencer_dashboard'))
+    elif session['role_id']==2:
+        return redirect(url_for('sponsor_dashboard'))
 
 @app.route('/reject_ad_request/<int:request_id>', methods=['POST'])
 @auth_rep
@@ -709,5 +698,8 @@ def reject_ad_request(request_id):
     db.session.commit()
     flash('Ad Request rejected.', 'info')
 
-    return redirect(url_for('sponsor_dashboard'))
+    if session['role_id']==3:
+        return redirect(url_for('influencer_dashboard'))
+    elif session['role_id']==2:
+        return redirect(url_for('sponsor_dashboard'))
 

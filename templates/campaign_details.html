@@ -19,7 +19,7 @@
             <p><strong>Goals:</strong> {{ campaign.goals }}</p>
             <p><strong>Niche:</strong> {{ campaign.niche }}</p>
             
-            {% if campaign.sponsor_id == session['user_id'] and session['role_id'] == 2 %}
+            {% if session['role_id'] == 2 %}
             <a href="{{ url_for('update_campaign', campaign_id=campaign.campaign_id) }}" class="btn btn-primary">Update</a>
             <a href="{{ url_for('delete_campaign', campaign_id=campaign.campaign_id) }}" class="btn btn-danger">Delete</a>
             {% endif %}
@@ -39,7 +39,7 @@
             
             <div class="d-flex justify-content-between align-items-center">
                 <h3>Ad Requests</h3>
-                {% if campaign.sponsor_id == session['user_id'] and session['role_id'] == 2 %}
+                {% if not session['role_id'] == 1 %}
                 <a href="{{ url_for('add_ad_request', campaign_id=campaign.campaign_id) }}" class="btn btn-success">Add</a>
                 {% endif %}
             </div>   

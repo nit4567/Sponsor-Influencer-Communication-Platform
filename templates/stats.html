@@ -3,109 +3,184 @@
 {% block title %}Admin Dashboard - Statistics{% endblock %}
 
 {% block content %}
-    <h1>Admin Dashboard - Statistics</h1>
-    <div class="row">
-        <div class="col-md-6">
-            <canvas id="activeUsersChart"></canvas>
-        </div>
-        <div class="col-md-6">
-            <canvas id="campaignsChart"></canvas>
-        </div>
+<h1>Admin Dashboard - Statistics</h1>
+<div class="row">
+    <div class="col-md-6 flex">
+        <canvas id="activeUsersChart"></canvas>
     </div>
-    <div class="row mt-4">
-        <div class="col-md-6">
-            <canvas id="adRequestsChart"></canvas>
-        </div>
-        <div class="col-md-6">
-            <canvas id="flaggedUsersChart"></canvas>
-        </div>
+    <div class="col-md-6">
+        <canvas id="campaignsChart"></canvas>
     </div>
+</div>
+<div class="row mt-4">
+    <div class="col-md-6">
+        <canvas id="adRequestsChart"></canvas>
+    </div>
+    <div class="col-md-6">
+        <canvas id="flaggedUsersChart"></canvas>
+    </div>
+</div>
+<div class="row mt-4">
+    <div class="col-md-6">
+        <canvas id="campaignStatusChart"></canvas>
+    </div>
+    <div class="col-md-6">
+        <canvas id="adRequestsStatusChart"></canvas>
+    </div>
+</div>
+<div class="row mt-4">
+    <div class="col-md-12">
+        <canvas id="campaignsPerNicheChart"></canvas>
+    </div>
+</div>
 {% endblock %}
 
 {% block extra_js %}
-    <script>
-        const statsData = {{ stats_data | tojson }};
+<script>
+    const statsData = {{ stats_data | tojson }};
 
-        // Active Users Chart
-        const ctx1 = document.getElementById('activeUsersChart').getContext('2d');
-        new Chart(ctx1, {
-            type: 'bar',
-            data: {
-                labels: ['Active Influencers', 'Active Sponsors'],
-                datasets: [{
-                    label: 'Active Users',
-                    data: [statsData.active_influencers, statsData.active_sponsors],
-                    backgroundColor: ['#4e73df', '#1cc88a'],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
+    // Active Users Chart
+    const ctx1 = document.getElementById('activeUsersChart').getContext('2d');
+    new Chart(ctx1, {
+        type: 'bar',
+        data: {
+            labels: ['Active Influencers', 'Active Sponsors'],
+            datasets: [{
+                label: 'Active Influencers',
+                data: [statsData.active_influencers, statsData.active_sponsors],
+                backgroundColor: ['#4e73df', '#1cc88a'],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
                 }
             }
-        });
+        }
+    });
 
-        // Campaigns Chart
-        const ctx2 = document.getElementById('campaignsChart').getContext('2d');
-        new Chart(ctx2, {
-            type: 'pie',
-            data: {
-                labels: ['Public Campaigns', 'Private Campaigns'],
-                datasets: [{
-                    label: 'Campaigns',
-                    data: [statsData.public_campaigns, statsData.private_campaigns],
-                    backgroundColor: ['#36b9cc', '#f6c23e'],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true
-            }
-        });
+    // Campaigns Chart
+    const ctx2 = document.getElementById('campaignsChart').getContext('2d');
+    new Chart(ctx2, {
+        type: 'pie',
+        data: {
+            labels: ['Public Campaigns', 'Private Campaigns'],
+            datasets: [{
+                label: 'Campaigns',
+                data: [statsData.public_campaigns, statsData.private_campaigns],
+                backgroundColor: ['#36b9cc', '#f6c23e'],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true
+        }
+    });
 
-        // Ad Requests Chart
-        const ctx3 = document.getElementById('adRequestsChart').getContext('2d');
-        new Chart(ctx3, {
-            type: 'doughnut',
-            data: {
-                labels: ['Total Ad Requests'],
-                datasets: [{
-                    label: 'Ad Requests',
-                    data: [statsData.total_ad_requests],
-                    backgroundColor: ['#e74a3b'],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true
-            }
-        });
+    // Ad Requests Chart
+    const ctx3 = document.getElementById('adRequestsChart').getContext('2d');
+    new Chart(ctx3, {
+        type: 'doughnut',
+        data: {
+            labels: ['Total Ad Requests'],
+            datasets: [{
+                label: 'Ad Requests',
+                data: [statsData.total_ad_requests],
+                backgroundColor: ['#e74a3b'],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true
+        }
+    });
 
-        // Flagged Users Chart
-        const ctx4 = document.getElementById('flaggedUsersChart').getContext('2d');
-        new Chart(ctx4, {
-            type: 'bar',
-            data: {
-                labels: ['Flagged Influencers', 'Flagged Sponsors'],
-                datasets: [{
-                    label: 'Flagged Users',
-                    data: [statsData.flagged_influencers, statsData.flagged_sponsors],
-                    backgroundColor: ['#f6c23e', '#858796'],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                responsive: true,
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
+    // Flagged Users Chart
+    const ctx4 = document.getElementById('flaggedUsersChart').getContext('2d');
+    new Chart(ctx4, {
+        type: 'bar',
+        data: {
+            labels: ['Flagged Influencers', 'Flagged Sponsors'],
+            datasets: [{
+                label: 'Flagged Users',
+                data: [statsData.flagged_influencers, statsData.flagged_sponsors],
+                backgroundColor: ['#f6c23e', '#858796'],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
                 }
             }
-        });
-    </script>
+        }
+    });
+
+    // Campaigns by Status Chart
+    const ctx5 = document.getElementById('campaignStatusChart').getContext('2d');
+    new Chart(ctx5, {
+        type: 'doughnut',
+        data: {
+            labels: ['Ongoing', 'Completed', 'Flagged', 'Deleted'],
+            datasets: [{
+                data: [statsData.ongoing_campaigns, statsData.completed_campaigns, statsData.flagged_campaign, statsData.deleted_campaigns],
+                backgroundColor: ['#4e73df', '#1cc88a', '#f6c23e', '#e74a3b'],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true
+        }
+    });
+
+    // Ad Requests by Status Chart
+    const ctx7 = document.getElementById('adRequestsStatusChart').getContext('2d');
+    new Chart(ctx7, {
+        type: 'bar',
+        data: {
+            labels: ['Pending', 'Approved', 'Rejected'],
+            datasets: [{
+                data: [statsData.pending_ad_requests, statsData.approved_ad_requests, statsData.rejected_ad_requests],
+                backgroundColor: ['#4e73df', '#1cc88a', '#e74a3b'],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+    // Campaigns per Niche Chart
+    const ctx6 = document.getElementById('campaignsPerNicheChart').getContext('2d');
+    new Chart(ctx6, {
+        type: 'bar',
+        data: {
+            labels: Object.keys(statsData.campaigns_per_niche),
+            datasets: [{
+                label: 'Campaigns per Niche',
+                data: Object.values(statsData.campaigns_per_niche),
+                backgroundColor: '#4e73df',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+</script>
 {% endblock %}

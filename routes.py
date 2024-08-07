@@ -292,36 +292,63 @@ def unflag_campaign(campaign_id):
     flash('Campaign has been unflagged.', 'success')
     return redirect(request.referrer)
 
-@app.route('/admin_dashboard/stats')
+@app.route('/stats')
 @auth_rep
 def stats():
-    active_influencers = InfluencerProfile.query.join(User).filter(User.is_flagged == False).count()
-    active_sponsors = Sponsor.query.join(User).filter(User.is_flagged == False).count()
+    # Active Users
+    active_influencers = User.query.join(InfluencerProfile).filter(User.is_flagged == False, User.role_id == 3).count()
+    active_sponsors = User.query.join(Sponsor).filter(User.is_flagged == False, User.role_id == 2).count()
+
+    # Total Campaigns and Their Visibility
     total_campaigns = Campaign.query.count()
     public_campaigns = Campaign.query.filter(Campaign.visibility == 'public').count()
     private_campaigns = Campaign.query.filter(Campaign.visibility == 'private').count()
+
+    # Campaigns by Status
+    ongoing_campaigns = Campaign.query.filter(Campaign.campaign_status == 'ongoing').count()
+    completed_campaigns = Campaign.query.filter(Campaign.campaign_status == 'completed').count()
+    flagged_campaign = Campaign.query.filter(Campaign.campaign_status == 'flagged').count()
+    deleted_campaigns = Campaign.query.filter(Campaign.campaign_status == 'deleted').count()
+
+    # Total Ad Requests
     total_ad_requests = AdRequest.query.count()
+    pending_ad_requests = AdRequest.query.filter(AdRequest.status == 'pending').count()
+    approved_ad_requests = AdRequest.query.filter(AdRequest.status == 'approved').count()
+    rejected_ad_requests = AdRequest.query.filter(AdRequest.status == 'rejected').count()
+
+    # Flagged Users
     flagged_influencers = User.query.filter(User.is_flagged == True, User.role_id == 3).count()
     flagged_sponsors = User.query.filter(User.is_flagged == True, User.role_id == 2).count()
-    
+
+    # Campaigns per Niche
+    niches = ['Fashion', 'Fitness', 'Travel', 'Food', 'Beauty', 'Technology', 'Lifestyle', 'Health', 'Music', 'Gaming', 'Art', 'Education', 'Finance']
+    campaigns_per_niche = {niche: Campaign.query.filter(Campaign.niche == niche).count() for niche in niches}
+
     stats_data = {
         'active_influencers': active_influencers,
         'active_sponsors': active_sponsors,
         'total_campaigns': total_campaigns,
         'public_campaigns': public_campaigns,
         'private_campaigns': private_campaigns,
+        'ongoing_campaigns': ongoing_campaigns,
+        'completed_campaigns': completed_campaigns,
+        'flagged_campaign': flagged_campaign,
+        'deleted_campaigns': deleted_campaigns,
         'total_ad_requests': total_ad_requests,
+        'pending_ad_requests': pending_ad_requests,
+        'approved_ad_requests': approved_ad_requests,
+        'rejected_ad_requests': rejected_ad_requests,
         'flagged_influencers': flagged_influencers,
-        'flagged_sponsors': flagged_sponsors
+        'flagged_sponsors': flagged_sponsors,
+        'campaigns_per_niche': campaigns_per_niche
     }
 
     return render_template('stats.html', stats_data=stats_data)
 
-
 @app.route('/campaign_details/<int:campaign_id>')
 @auth_rep
 def campaign_details(campaign_id):
-    campaign = Campaign.query.get_or_404(campaign_id)
+    campaign = Campaign.query.get(campaign_id)
     requests = AdRequest.query.filter_by(campaign_id=campaign_id)
     return render_template('campaign_details.html', campaign=campaign,requests=requests)
 

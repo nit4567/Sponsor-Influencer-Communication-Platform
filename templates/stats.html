@@ -24,7 +24,8 @@
 
 {% block extra_js %}
     <script>
-        const statsData = {{ stats_data | tojson }};
+        const statsData = {{ stats_data | tojson }}
+        console.log(statsData)
 
         // Active Users Chart
         const ctx1 = document.getElementById('activeUsersChart').getContext('2d');

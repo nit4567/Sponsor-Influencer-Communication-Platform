@@ -305,16 +305,16 @@ def stats():
     flagged_sponsors = User.query.filter(User.is_flagged == True, User.role_id == 2).count()
     
     stats_data = {
-        'active_influencers': active_influencers,
-        'active_sponsors': active_sponsors,
-        'total_campaigns': total_campaigns,
-        'public_campaigns': public_campaigns,
-        'private_campaigns': private_campaigns,
-        'total_ad_requests': total_ad_requests,
-        'flagged_influencers': flagged_influencers,
-        'flagged_sponsors': flagged_sponsors
+        "active_influencers": active_influencers,
+        "active_sponsors": active_sponsors,
+        "total_campaigns": total_campaigns,
+        "public_campaigns": public_campaigns,
+        "private_campaigns": private_campaigns,
+        "total_ad_requests": total_ad_requests,
+        "flagged_influencers": flagged_influencers,
+        "flagged_sponsors": flagged_sponsors
     }
-
+    
     return render_template('stats.html', stats_data=stats_data)
 
 
@@ -614,7 +614,8 @@ def influencer_search():  #will be used by influencer and admin to search for ca
 
 
     search_results = query.all()
-    
+    print("Camp 1")
+    print(vars(search_results[0]))
     return render_template('campaign_search.html', search_results=search_results)
 
 @app.route('/influencer_search', methods=['GET', 'POST'])

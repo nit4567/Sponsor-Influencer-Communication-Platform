@@ -84,6 +84,35 @@
                     </tbody>
                 </table>
             </div>
+
+            <div class="tab-pane fade" id="OnGoingRequests" role="tabpanel" aria-labelledby="ongoing-requests-tab">
+                <h4>On Going Requests</h4>
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Created By</th>
+                            <th>Payment Amount</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for request in ongoing_requests %}
+                        <tr>
+                            <td><a href="{{ url_for('view_profile', user_id=request.created_by) }}">{{ request.creator.username }}</a></td>
+                            <td>{{ request.payment_amount }}</td>
+                            <td>{{ request.status}}</td>
+                            <td>
+                                <a href="{{ url_for('ad_request_details', request_id=request.ad_request_id) }}" class="btn btn-info btn-sm">View</a>
+                                <form action="{{ url_for('reject_ad_request', request_id=request.ad_request_id) }}" method="POST" style="display:inline;">
+                                    <button type="submit" class="btn btn-danger btn-sm">Reject</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>

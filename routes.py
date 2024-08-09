@@ -227,9 +227,9 @@ def sponsor_dashboard():
     sponsor = Sponsor.query.filter_by(id=user_id).first_or_404()
     active_campaigns = Campaign.query.filter(Campaign.sponsor_id == sponsor.sponsor_id, 
                                              Campaign.campaign_status.in_(['ongoing', 'completed'])).all()
-    new_requests = AdRequest.query.filter(AdRequest.created_for==user_id,AdRequest.status.in_(['ongoing', 'completed','pending'])).all()
-
-    return render_template('dashboard_spon.html', sponsor=sponsor, active_campaigns=active_campaigns, new_requests=new_requests, user=user)
+    new_requests = AdRequest.query.filter(AdRequest.created_for==user_id,AdRequest.status.in_(['completed','pending'])).all()
+    ongoing_requests = AdRequest.query.filter(AdRequest.created_for==user_id,AdRequest.status.in_(['ongoing'])).all()
+    return render_template('dashboard_spon.html', sponsor=sponsor, active_campaigns=active_campaigns, new_requests=new_requests, ongoing_requests=ongoing_requests, user=user)
 
 
 @app.route('/admin/dashboard')
@@ -601,7 +601,7 @@ def influencer_search():  #will be used by influencer and admin to search for ca
         search_query = request.form.get('search_query', '')
         min_budget = request.form.get('min_budget', type=float)
         max_budget = request.form.get('max_budget', type=float)
-
+        search_results = []
         
         if search_query:
             query = query.filter(Campaign.name.ilike(f"%{search_query}%"))
@@ -612,10 +612,12 @@ def influencer_search():  #will be used by influencer and admin to search for ca
         if max_budget is not None:
             query = query.filter(Campaign.budget <= max_budget)
 
-
-    search_results = query.all()
-    print("Camp 1")
-    print(vars(search_results[0]))
+    try:
+        search_results = query.all()
+    except:
+        print("Issues with Query or No results found")
+        print("Camp 1")
+        print(vars(search_results[0]))
     return render_template('campaign_search.html', search_results=search_results)
 
 @app.route('/influencer_search', methods=['GET', 'POST'])

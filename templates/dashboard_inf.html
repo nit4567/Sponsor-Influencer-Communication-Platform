@@ -70,7 +70,7 @@
                         {% for request in new_requests %}
                         <tr>
                             <td>{{ request.creator.username }}</td>
-                            <td>{{ request.payment_amount | round(2) }}</td>
+                            <td>{{ request.payment_amount | default(0) | float | round(2) }}</td>
                             <td>{{ request.status}}</td>
                             <td>
                                 <a href="{{ url_for('ad_request_details', request_id=request.ad_request_id) }}" class="btn btn-info btn-sm">View</a>

@@ -12,7 +12,7 @@
         <h4>Profile Details</h4>
         <p><strong>Company Name:</strong> {{ sponsor.company_name }}</p>
         <p><strong>Email:</strong> {{ user.email_id }}</p>
-        <p><strong>Budget:</strong> {{ sponsor.budget | round(2) }}</p>
+        <p><strong>Budget:</strong> {{ sponsor.budget| default(0) | float | round(2) }}</p>
         <p><strong>Bio:</strong> {{ sponsor.bio }}</p>
     </div>
 
@@ -45,7 +45,7 @@
                         {% for campaign in active_campaigns %}
                         <tr>
                             <td><a href="{{ url_for('campaign_details', campaign_id=campaign.campaign_id) }}">{{ campaign.name }}</a></td>
-                            <td>{{ campaign.budget | round(2) }}</td>
+                            <td>{{ campaign.budget | default(0) | float| round(2) }}</td>
                             <td>{{ campaign.campaign_status }}</td>
                         </tr>
                         {% endfor %}
@@ -68,7 +68,8 @@
                         {% for request in new_requests %}
                         <tr>
                             <td><a href="{{ url_for('view_profile', user_id=request.created_by) }}">{{ request.creator.username }}</a></td>
-                            <td>{{ request.payment_amount | round(2) }}</td>
+                            <td>{{ request.payment_amount | default(0) | float | round(2) }}</p>
+                            }}</td>
                             <td>{{ request.status}}</td>
                             <td>
                                 <a href="{{ url_for('ad_request_details', request_id=request.ad_request_id) }}" class="btn btn-info btn-sm">View</a>

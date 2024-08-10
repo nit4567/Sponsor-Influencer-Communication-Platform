@@ -39,7 +39,7 @@
                             <p class="mb-1">{{ campaign.description }}</p>
                             <small><strong>Start Date:</strong> {{ campaign.start_date }}</small><br>
                             <small><strong>End Date:</strong> {{ campaign.end_date }}</small><br>
-                            <small><strong>Budget:</strong> {{ campaign.budget | round(2) }}</small>
+                            <small><strong>Budget:</strong> {{ campaign.budget | default(0) | float | round(2) }}</small>
                         </a>
                     {% endfor %}
                 {% else %}

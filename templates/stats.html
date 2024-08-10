@@ -1,38 +1,43 @@
 {% extends "layout.html" %}
 
-{% block title %}Admin Dashboard - Statistics{% endblock %}
+{% block title %}Statistics{% endblock %}
 
 {% block content %}
-<h1>Admin Dashboard - Statistics</h1>
-<div class="row">
-    <div class="col-md-6 flex">
+<h1 class="mb-4">Statistics</h1>
+
+<div class="row mb-5">
+    <div class="col-md-6">
         <canvas id="activeUsersChart"></canvas>
+        <p class="text-muted mt-3" style="font-size: 1.1em; font-weight: 500;">This chart shows the count of active users in the system, split into Influencers and Sponsors.</p>
     </div>
     <div class="col-md-6">
         <canvas id="campaignsChart"></canvas>
+        <p class="text-muted mt-3" style="font-size: 1.1em; font-weight: 500;">This chart displays the distribution of campaigns into Public and Private categories.</p>
     </div>
 </div>
-<div class="row mt-4">
-    <div class="col-md-6">
-        <canvas id="adRequestsChart"></canvas>
-    </div>
+
+<div class="row mb-5">
     <div class="col-md-6">
         <canvas id="flaggedUsersChart"></canvas>
+        <p class="text-muted mt-3" style="font-size: 1.1em; font-weight: 500;">This chart represents the number of flagged users, divided into Influencers and Sponsors.</p>
     </div>
-</div>
-<div class="row mt-4">
     <div class="col-md-6">
         <canvas id="campaignStatusChart"></canvas>
+        <p class="text-muted mt-3" style="font-size: 1.1em; font-weight: 500;">This chart categorizes campaigns by their status: Ongoing, Completed, Flagged, and Deleted.</p>
     </div>
+</div>
+
+<div class="row mb-5">
     <div class="col-md-6">
         <canvas id="adRequestsStatusChart"></canvas>
+        <p class="text-muted mt-3" style="font-size: 1.1em; font-weight: 500;">This chart shows the status of ad requests, divided into Pending, Approved, and Rejected.</p>
     </div>
-</div>
-<div class="row mt-4">
-    <div class="col-md-12">
+    <div class="col-md-6">
         <canvas id="campaignsPerNicheChart"></canvas>
+        <p class="text-muted mt-3" style="font-size: 1.1em; font-weight: 500;">This chart illustrates the distribution of campaigns across different niches.</p>
     </div>
 </div>
+
 {% endblock %}
 
 {% block extra_js %}
@@ -72,24 +77,6 @@
                 label: 'Campaigns',
                 data: [statsData.public_campaigns, statsData.private_campaigns],
                 backgroundColor: ['#36b9cc', '#f6c23e'],
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true
-        }
-    });
-
-    // Ad Requests Chart
-    const ctx3 = document.getElementById('adRequestsChart').getContext('2d');
-    new Chart(ctx3, {
-        type: 'doughnut',
-        data: {
-            labels: ['Total Ad Requests'],
-            datasets: [{
-                label: 'Ad Requests',
-                data: [statsData.total_ad_requests],
-                backgroundColor: ['#e74a3b'],
                 borderWidth: 1
             }]
         },

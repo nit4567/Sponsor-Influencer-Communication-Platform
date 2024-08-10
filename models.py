@@ -20,7 +20,7 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     role_id = db.Column(db.Integer, db.ForeignKey('user_role.role_id'), nullable=False)
     username = db.Column(db.String(32), nullable=False, unique=True)
-    email_id = db.Column(db.String(64), unique=True, nullable=False)
+    email_id = db.Column(db.String(64),  nullable=False)
     password = db.Column(db.String(64), nullable=False)
     is_flagged = db.Column(db.Boolean ,default=False)
     role = db.relationship('UserRole', backref=db.backref('users', lazy=True))
@@ -70,7 +70,7 @@ class AdRequest(db.Model):
     created_for = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     messages = db.Column(db.String(64))
     requirements = db.Column(db.String(128))
-    payment_amount = db.Column(db.Float(10, 2))
+    payment_amount = db.Column(db.Float(10, 2), nullable = False)
     status = db.Column(Enum('ongoing', 'pending', 'flagged', 'deleted', 'completed', 'rejected' ,name='ad_request_status_types'), default='pending', nullable=False)
 
     campaign = db.relationship('Campaign', backref=db.backref('ad_requests', lazy=True))
@@ -144,11 +144,12 @@ with app.app_context():
     # Check and insert influencers if the table is empty
     if not InfluencerProfile.query.first():
         influencers_data = [
-            {'username': 'influencer1', 'email_id': 'influencer1@example.com', 'password': 'password5', 'niche': 'Fashion', 'bio': 'Fashion influencer'},
-            {'username': 'influencer2', 'email_id': 'influencer2@example.com', 'password': 'password6', 'niche': 'Fitness', 'bio': 'Fitness influencer'},
-            {'username': 'influencer3', 'email_id': 'influencer3@example.com', 'password': 'password7', 'niche': 'Travel', 'bio': 'Travel influencer'},
-            {'username': 'influencer4', 'email_id': 'influencer4@example.com', 'password': 'password8', 'niche': 'Food', 'bio': 'Food influencer'}
-        ]
+        {'username': 'influencer1', 'email_id': 'influencer1@example.com', 'password': 'password5', 'niche': 'Fashion', 'bio': 'Fashion influencer', 'followers': 4500},
+        {'username': 'influencer2', 'email_id': 'influencer2@example.com', 'password': 'password6', 'niche': 'Fitness', 'bio': 'Fitness influencer', 'followers': 3200},
+        {'username': 'influencer3', 'email_id': 'influencer3@example.com', 'password': 'password7', 'niche': 'Travel', 'bio': 'Travel influencer', 'followers': 7800},
+        {'username': 'influencer4', 'email_id': 'influencer4@example.com', 'password': 'password8', 'niche': 'Food', 'bio': 'Food influencer', 'followers': 6200}
+    ]
+
 
         for influencer_data in influencers_data:
             existing_user = User.query.filter_by(username=influencer_data['username']).first()
@@ -164,7 +165,8 @@ with app.app_context():
                 influencer_profile = InfluencerProfile(
                     id=user.id,
                     niche=influencer_data['niche'],
-                    bio=influencer_data['bio']
+                    bio=influencer_data['bio'],
+                    followers=influencer_data['followers']
                 )
                 db.session.add(influencer_profile)
         db.session.commit()

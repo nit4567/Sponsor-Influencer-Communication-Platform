@@ -9,7 +9,7 @@
     <div class="row">
         <!-- Filter Section -->
         <div class="col-md-4">
-            <h2>Filter Sponsors</h2>
+            <h2>Search Sponsors</h2>
             <form action="{{ url_for('search_sponsors') }}" method="POST">
                 <div class="mb-3">
                     <label for="industry" class="form-label">Industry</label>
@@ -37,7 +37,7 @@
                             <h5 class="mb-1">{{ sponsor.company_name }}</h5>
                             <p class="mb-1">{{ sponsor.bio }}</p>
                             <small><strong>Industry:</strong> {{ sponsor.industry }}</small><br>
-                            <small><strong>Budget:</strong> ${{ sponsor.budget }}</small>
+                            <small><strong>Budget:</strong> {{ sponsor.budget | round(2) }}</small>
                         </a>
                     {% endfor %}
                 {% else %}

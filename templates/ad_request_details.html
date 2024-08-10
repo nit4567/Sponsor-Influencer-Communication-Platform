@@ -15,7 +15,7 @@
             <p><strong>Created For:</strong> {{ ad_request.recipient.username }}</p>
             <p><strong>Messages:</strong> {{ ad_request.messages }}</p>
             <p><strong>Requirements:</strong> {{ ad_request.requirements }}</p>
-            <p><strong>Payment Amount:</strong> ${{ ad_request.payment_amount }}</p>
+            <p><strong>Payment Amount:</strong> {{ ad_request.payment_amount | round(2)}}</p>
             <p><strong>Status:</strong> {{ ad_request.status }}</p>
         </div>
         <div class="col-md-6">

@@ -6,35 +6,72 @@
 
 {% block content %}
 <div class="container">
-    <h1 class="display-4 mb-4">Profile</h1>
-    
-    <div class="profile-details">
-        <h4>Profile Details</h4>
-        <p><strong>Username:</strong> {{ user.username }}</p>
-        <p><strong>Email ID:</strong> {{ user.email_id }}</p>
-        <p><strong>Bio:</strong> {{ profile.bio }}</p>
-        {% if role_id == 3 %}
-            <p><strong>Name:</strong> {{ profile.name }}</p>
-            <p><strong>Niche:</strong> {{ profile.niche }}</p>
-            <p><strong>Followers:</strong> {{ profile.followers }}</p>
-        {% elif role_id == 2 %}
-            <p><strong>Company Name:</strong> {{ profile.company_name }}</p>
-            <p><strong>Budget:</strong> {{ profile.budget }}</p>
-            <p><strong>Industry:</strong> {{ profile.industry }}</p>
-        {% endif %}
-    </div>
-    
-    {% if user.id==session.user_id %}
-        <a href="{{ url_for('update_profile') }}" class="btn btn-primary">Update Profile</a>
-    {% endif %}
-
-    {% if session.role_id == 1 %}
-        <form action="{{ url_for('flag_user', user_id=user.id) }}" method="POST">
-            <button type="submit" class="btn btn-danger">
-                <i class="fas fa-flag"></i> Flag User
-            </button>
+    <div class="card mt-5">
+        <div class="card-header bg-primary text-white">
+            <h1 class="display-6 mb-0">Profile</h1>
+        </div>
+        <div class="card-body">
+            <h4 class="mb-4">Profile Details</h4>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <p><strong>Username:</strong> {{ user.username }}</p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Email ID:</strong> {{ user.email_id }}</p>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-12">
+                    <p><strong>Bio:</strong> {{ profile.bio }}</p>
+                </div>
+            </div>
             
-        </form>   
-    {% endif %}
+            {% if role_id == 3 %}
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <p><strong>Name:</strong> {{ profile.name }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Niche:</strong> {{ profile.niche }}</p>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <p><strong>Followers:</strong> {{ profile.followers }}</p>
+                    </div>
+                </div>
+            {% elif role_id == 2 %}
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <p><strong>Company Name:</strong> {{ profile.company_name }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Budget:</strong> ${{ profile.budget | round(2) }}</p>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <p><strong>Industry:</strong> {{ profile.industry }}</p>
+                    </div>
+                </div>
+            {% endif %}
+            
+            <div class="d-flex justify-content-between mt-4">
+                {% if user.id==session.user_id %}
+                    <a href="{{ url_for('update_profile') }}" class="btn btn-primary">
+                        <i class="fas fa-edit"></i> Update Profile
+                    </a>
+                {% endif %}
+
+                {% if session.role_id == 1 %}
+                    <form action="{{ url_for('flag_user', user_id=user.id) }}" method="POST">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-flag"></i> Flag User
+                        </button>
+                    </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}

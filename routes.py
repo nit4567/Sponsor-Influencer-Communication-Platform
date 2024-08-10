@@ -71,6 +71,10 @@ def inf_register_post():
     if user:
         flash('Username already exists','error')
         return redirect(url_for('inf_register'))
+    user = User.query.filter_by(email_id=email).first()
+    if user:
+        flash('Multiple profile using single email id is not allowed','error')
+        return redirect(url_for('inf_register'))
     
     password_hash = generate_password_hash(password)
 
@@ -113,7 +117,10 @@ def spon_register_post():
     if user:
         flash('Username already exists','error')
         return redirect(url_for('spon_register'))
-
+    user = User.query.filter_by(email_id=email).first()
+    if user:
+        flash('Multiple profile using single email id is not allowed','error')
+        return redirect(url_for('spon_register'))
     password_hash = generate_password_hash(password)
 
     new_user= User(role_id=2,username=username,password=password_hash,email_id=email)
@@ -153,7 +160,7 @@ def check_adr_editable(f):
             if ad_request and ad_request.status in ['rejected', 'flagged', 'deleted']:
                 flash('This Ad Request cannot be modified as it is either rejected or flagged.', 'error')
                 if session.role_id==2:
-                    return redirect(url_for('sponsor_dashboard'))  # Redirect to a suitable page
+                    return redirect(url_for('sponsor_dashboard')) 
                 elif session.role_id==3:
                     return redirect(url_for('influencer_dashboard'))
         return f(*args, **kwargs)
@@ -277,9 +284,15 @@ def unflag_user(user_id):
 @role_required(1)
 def flag_campaign(campaign_id):
     campaign = Campaign.query.get(campaign_id)
-    campaign.campaign_status = 'flagged'
-    db.session.commit()
-    flash('Campaign has been flagged.', 'success')
+    if campaign:
+        campaign.campaign_status = 'flagged'
+        ad_requests = AdRequest.query.filter_by(campaign_id=campaign_id).all()
+        for ad_request in ad_requests:
+            ad_request.status = 'flagged'
+        db.session.commit()
+        flash('Campaign and its associated ad requests have been flagged.', 'success')
+    else:
+        flash('Campaign not found.', 'danger')
     return redirect(request.referrer)
 
 @app.route('/admin/unflag_campaign/<int:campaign_id>', methods=['POST'])
@@ -288,9 +301,13 @@ def flag_campaign(campaign_id):
 def unflag_campaign(campaign_id):
     campaign = Campaign.query.get_or_404(campaign_id)
     campaign.campaign_status = 'ongoing'  # or whatever the default status should be
+    ad_requests = AdRequest.query.filter_by(campaign_id=campaign_id).all()
+    for ad_request in ad_requests:
+        ad_request.status = 'ongoing'  # or the appropriate default status for ad requests
     db.session.commit()
-    flash('Campaign has been unflagged.', 'success')
+    flash('Campaign and its associated ad requests have been unflagged.', 'success')
     return redirect(request.referrer)
+
 
 @app.route('/stats')
 @auth_rep
@@ -407,7 +424,7 @@ def update_campaign(campaign_id):
 
     if role_id != 2:  # Ensure only sponsors can access this page
         flash('You do not have permission to access this page','error')
-        return redirect(url_for('index'))
+        return redirect(url_for('campaign_details',campaign_id=campaign_id))
 
     campaign = Campaign.query.filter_by(campaign_id=campaign_id).first()
 
@@ -436,7 +453,7 @@ def delete_campaign(campaign_id):
 
     if role_id != 2:  # Ensure only sponsors can access this page
         flash('You do not have permission to access this page','error')
-        return redirect(url_for('index'))
+        return redirect(url_for('campaign_details',campaign_id=campaign_id))
 
     campaign = Campaign.query.filter_by(campaign_id=campaign_id).first()
 

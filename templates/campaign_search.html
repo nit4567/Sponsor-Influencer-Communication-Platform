@@ -9,7 +9,7 @@
     <div class="row">
         <!-- Filter Section -->
         <div class="col-md-4">
-            <h2>Filter Campaigns</h2>
+            <h2>Search Campaigns</h2>
             <form action="{{ url_for('influencer_search') }}" method="POST">
                 <div class="form-group">
                     <label for="search_query">Campaign Name</label>
@@ -39,7 +39,7 @@
                             <p class="mb-1">{{ campaign.description }}</p>
                             <small><strong>Start Date:</strong> {{ campaign.start_date }}</small><br>
                             <small><strong>End Date:</strong> {{ campaign.end_date }}</small><br>
-                            <small><strong>Budget:</strong> {{ campaign.budget }}</small>
+                            <small><strong>Budget:</strong> {{ campaign.budget | round(2) }}</small>
                         </a>
                     {% endfor %}
                 {% else %}

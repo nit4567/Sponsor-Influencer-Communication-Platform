@@ -20,19 +20,28 @@
             <p><strong>Niche:</strong> {{ campaign.niche }}</p>
 
             {% if session['role_id'] == 2 and campaign.status == 'ongoing' %}
-            <a href="{{ url_for('update_campaign', campaign_id=campaign.campaign_id) }}" class="btn btn-primary">Update</a>
-            <a href="{{ url_for('delete_campaign', campaign_id=campaign.campaign_id) }}" class="btn btn-danger">Delete</a>
-            <form action="{{ url_for('complete_campaign', campaign_id=campaign.campaign_id) }}" method="POST" style="display:inline;">
-                <button type="submit" class="btn btn-success">Complete</button>
-            </form>
+                <a href="{{ url_for('update_campaign', campaign_id=campaign.campaign_id) }}" class="btn btn-primary">Update</a>
+                <a href="{{ url_for('delete_campaign', campaign_id=campaign.campaign_id) }}" class="btn btn-danger">Delete</a>
+                <form action="{{ url_for('complete_campaign', campaign_id=campaign.campaign_id) }}" method="POST" style="display:inline;">
+                    <button type="submit" class="btn btn-success">Complete</button>
+                </form>
             {% endif %}
 
             {% if session.role_id == 1 %}
-            <form action="{{ url_for('flag_campaign', campaign_id=campaign.campaign_id) }}" method="POST">
-                <button type="submit" class="btn btn-danger">
-                    <i class="fas fa-flag"></i> Flag Campaign
-                </button>
-            </form>
+                {%if campaign.campaign_status != 'flagged' %}
+                    <form action="{{ url_for('flag_campaign', campaign_id=campaign.campaign_id) }}" method="POST">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-flag"></i> Flag Campaign
+                        </button>
+                    </form>
+                {% elif campaign.campaign_status == 'flagged' %}
+                    <form action="{{ url_for('unflag_campaign', campaign_id=campaign.campaign_id) }}" method="POST">
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-flag"></i> Unflag Campaign
+                        </button>
+                    </form>
+                
+                {% endif %}
             {% endif %}
         </div>
 

@@ -262,8 +262,16 @@ def admin_search():
 @auth_rep
 @role_required(1)
 def flag_user(user_id):
-    user = User.query.get(user_id)
+    user = User.query.get_or_404(user_id)  # Ensure the user exists
     user.is_flagged = True
+    
+    if session.get('role_id') == 2:
+        sponsor = Sponsor.query.filter_by(user_id=user_id).first()  # Fetch the sponsor by user_id
+        if sponsor:
+            campaigns = Campaign.query.filter_by(sponsor_id=sponsor.id).all()  # Get all campaigns by this sponsor
+            for campaign in campaigns:
+                flag_campaign(campaign.id)  # Call the flag_campaign function with the campaign id
+    
     db.session.commit()
     flash('User has been flagged.', 'success')
     return redirect(url_for('admin_dashboard'))
@@ -272,11 +280,20 @@ def flag_user(user_id):
 @auth_rep
 @role_required(1)
 def unflag_user(user_id):
-    user = User.query.get_or_404(user_id)
+    user = User.query.get_or_404(user_id)  # Ensure the user exists
     user.is_flagged = False
+
+    if session.get('role_id') == 2:
+        sponsor = Sponsor.query.filter_by(user_id=user_id).first()  # Fetch the sponsor by user_id
+        if sponsor:
+            campaigns = Campaign.query.filter_by(sponsor_id=sponsor.id).all()  # Get all campaigns by this sponsor
+            for campaign in campaigns:
+                unflag_campaign(campaign.id)  
+
     db.session.commit()
     flash('User has been unflagged.', 'success')
-    return redirect(request.referrer)
+    return redirect(request.referrer)  
+
 
 @app.route('/admin/flag_campaign/<int:campaign_id>', methods=['POST'])
 @auth_rep
@@ -299,10 +316,10 @@ def flag_campaign(campaign_id):
 @role_required(1)
 def unflag_campaign(campaign_id):
     campaign = Campaign.query.get_or_404(campaign_id)
-    campaign.campaign_status = 'ongoing'  # or whatever the default status should be
+    campaign.campaign_status = 'ongoing'
     ad_requests = AdRequest.query.filter_by(campaign_id=campaign_id).all()
     for ad_request in ad_requests:
-        ad_request.status = 'ongoing'  # or the appropriate default status for ad requests
+        ad_request.status = 'pending' 
     db.session.commit()
     flash('Campaign and its associated ad requests have been unflagged.', 'success')
     return redirect(request.referrer)
@@ -329,7 +346,8 @@ def stats():
     # Total Ad Requests
     total_ad_requests = AdRequest.query.count()
     pending_ad_requests = AdRequest.query.filter(AdRequest.status == 'pending').count()
-    approved_ad_requests = AdRequest.query.filter(AdRequest.status == 'approved').count()
+    approved_ad_requests = AdRequest.query.filter(AdRequest.status == 'ongoing').count()
+    flagged_ad_requests = AdRequest.query.filter(AdRequest.status == 'flagged').count()
     rejected_ad_requests = AdRequest.query.filter(AdRequest.status == 'rejected').count()
 
     # Flagged Users
@@ -354,6 +372,7 @@ def stats():
         'pending_ad_requests': pending_ad_requests,
         'approved_ad_requests': approved_ad_requests,
         'rejected_ad_requests': rejected_ad_requests,
+        'flagged_ad_requests':flagged_ad_requests,
         'flagged_influencers': flagged_influencers,
         'flagged_sponsors': flagged_sponsors,
         'campaigns_per_niche': campaigns_per_niche
@@ -603,8 +622,11 @@ def add_ad_request(campaign_id):
                 )
             else:
                 flash('You can only request for public campaigns matching your niche.', 'error')
-                return redirect(url_for('add_ad_request', campaign_id=campaign_id))
+                return redirect(url_for('campaign_details', campaign_id=campaign_id))
         elif user_role == 2:  # Sponsor
+            if not recipient:
+                flash('Invalid username of influencer', 'error')
+                return redirect(url_for('campaign_details', campaign_id=campaign_id))
             influencer = InfluencerProfile.query.filter_by(id=recipient.id).first()
             if influencer.niche == campaign.niche:
                 new_request = AdRequest(
@@ -726,8 +748,6 @@ def sponsor_search():  # will be used by sponsors and admin to search influencer
 def search_sponsors():  # Used by admin to search for sponsors
     if session['role_id'] == 1:
         query = Sponsor.query
-    else:
-        query = Sponsor.query.filter(Sponsor.is_flagged == False)
 
     if request.method == 'POST':
         search_query = request.form.get('search_query', '')

@@ -130,9 +130,9 @@
     new Chart(ctx7, {
         type: 'bar',
         data: {
-            labels: ['Pending', 'Approved', 'Rejected'],
+            labels: ['Pending', 'Ongoing', 'Rejected','Flagged'],
             datasets: [{
-                data: [statsData.pending_ad_requests, statsData.approved_ad_requests, statsData.rejected_ad_requests],
+                data: [statsData.pending_ad_requests, statsData.approved_ad_requests, statsData.rejected_ad_requests,statsData.flagged_ad_requests],
                 backgroundColor: ['#4e73df', '#1cc88a', '#e74a3b'],
                 borderWidth: 1
             }]

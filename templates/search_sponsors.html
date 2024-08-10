@@ -37,8 +37,7 @@
                             <h5 class="mb-1">{{ sponsor.company_name }}</h5>
                             <p class="mb-1">{{ sponsor.bio }}</p>
                             <small><strong>Industry:</strong> {{ sponsor.industry }}</small><br>
-                            <p><strong>Budget:</strong> {{ sponsor.budget | default(0) | float | round(2) }}</small>
-
+                            <small><strong>Budget:</strong> {{ sponsor.budget | default(0) | float | round(2) }}</small>
                         </a>
                     {% endfor %}
                 {% else %}

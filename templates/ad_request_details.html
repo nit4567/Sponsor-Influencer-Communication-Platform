@@ -6,22 +6,57 @@
 
 {% block content %}
 <div class="container">
-    <h2>Ad Request Details</h2>
-    <div class="row">
-        <div class="col-md-6">
-            <p><strong>Request ID:</strong> {{ ad_request.ad_request_id }}</p>
-            <p><strong>Campaign:</strong> <a href="{{ url_for('campaign_details', campaign_id=ad_request.campaign.campaign_id) }}">{{ ad_request.campaign.name }}</a></p>
-            <p><strong>Created By:</strong> {{ ad_request.creator.username }}</p>
-            <p><strong>Created For:</strong> {{ ad_request.recipient.username }}</p>
-            <p><strong>Messages:</strong> {{ ad_request.messages }}</p>
-            <p><strong>Requirements:</strong> {{ ad_request.requirements }}</p>
-            <p><strong>Payment Amount:</strong> {{ ad_request.payment_amount | default(0) | float| round(2)}}</p>
-            <p><strong>Status:</strong> {{ ad_request.status }}</p>
+    <div class="card mt-5">
+        <div class="card-header bg-primary text-white">
+            <h1 class="display-6 mb-0">Ad Request Details</h1>
         </div>
-        <div class="col-md-6">
-            {% if session.user_id == ad_request.created_by %}
-            <a href="{{ url_for('edit_ad_request', request_id=ad_request.ad_request_id) }}" class="btn btn-secondary">Edit</a>
-            {% endif %}
+        <div class="card-body">
+            <h4 class="mb-4">Details</h4>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <p><strong>Request ID:</strong> {{ ad_request.ad_request_id }}</p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Campaign:</strong> 
+                        <a href="{{ url_for('campaign_details', campaign_id=ad_request.campaign.campaign_id) }}">
+                            {{ ad_request.campaign.name }}
+                        </a>
+                    </p>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <p><strong>Created By:</strong> {{ ad_request.creator.username }}</p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Created For:</strong> {{ ad_request.recipient.username }}</p>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-12">
+                    <p><strong>Messages:</strong> {{ ad_request.messages }}</p>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-12">
+                    <p><strong>Requirements:</strong> {{ ad_request.requirements }}</p>
+                </div>
+            </div>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <p><strong>Payment Amount:</strong> {{ ad_request.payment_amount | default(0) | float | round(2) }}</p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Status:</strong> {{ ad_request.status }}</p>
+                </div>
+            </div>
+            <div class="d-flex justify-content-between mt-4">
+                {% if session.user_id == ad_request.created_by and ad_request.status != 'completed' and ad_request.status != 'deleted' %}
+                    <a href="{{ url_for('edit_ad_request', request_id=ad_request.ad_request_id) }}" class="btn btn-primary">
+                        <i class="fas fa-edit"></i> Edit
+                    </a>
+                {% endif %}
+            </div>
         </div>
     </div>
 </div>

@@ -159,9 +159,9 @@ def check_adr_editable(f):
         if not session.get('role_id')==1:
             if ad_request and ad_request.status in ['rejected', 'flagged', 'deleted']:
                 flash('This Ad Request cannot be modified as it is either rejected or flagged.', 'error')
-                if session.role_id==2:
+                if session['role_id']==2:
                     return redirect(url_for('sponsor_dashboard')) 
-                elif session.role_id==3:
+                elif session['role_id']==3:
                     return redirect(url_for('influencer_dashboard'))
         return f(*args, **kwargs)
     return decorated_function
@@ -195,9 +195,8 @@ def logout():
     return redirect(url_for('login'))
 
 @app.route('/')
-@auth_rep
 def index():
-    return render_template('index.html')
+    return redirect(url_for('login'))
 
 @app.route('/influencer_dashboard')
 @auth_rep
@@ -444,6 +443,38 @@ def update_campaign(campaign_id):
         return redirect(url_for('sponsor_dashboard'))
     return render_template('update_campaign.html',campaign=campaign)
 
+@app.route('/campaign/<int:campaign_id>/complete', methods=['POST'])
+@auth_rep
+@check_campaign_editable
+def complete_campaign(campaign_id):
+    user_id = session.get('user_id')
+    role_id = session.get('role_id')
+
+    if role_id != 2:  # Ensure only sponsors can access this page
+        flash('You do not have permission to access this page', 'error')
+        return redirect(url_for('campaign_details', campaign_id=campaign_id))
+
+    campaign = Campaign.query.filter_by(campaign_id=campaign_id).first()
+
+    if not campaign:
+        flash('Campaign not found or you do not have permission to complete this campaign', 'error')
+        return redirect(url_for('sponsor_dashboard'))
+
+    # Update the campaign status to 'completed'
+    campaign.campaign_status = 'completed'
+    
+    # Update all associated ad requests to 'completed' if their status is 'pending'
+    ad_requests = AdRequest.query.filter_by(campaign_id=campaign_id).all()
+    for request in ad_requests:
+        if request.status == 'pending':
+            request.status = 'completed'  # or another status indicating completion
+
+    db.session.commit()
+    flash('Campaign marked as completed and related ad requests have been updated')
+    return redirect(url_for('sponsor_dashboard'))
+
+
+
 @app.route('/campaign/<int:campaign_id>/delete', methods=['POST'])
 @auth_rep
 @check_campaign_editable
@@ -452,19 +483,27 @@ def delete_campaign(campaign_id):
     role_id = session.get('role_id')
 
     if role_id != 2:  # Ensure only sponsors can access this page
-        flash('You do not have permission to access this page','error')
-        return redirect(url_for('campaign_details',campaign_id=campaign_id))
+        flash('You do not have permission to access this page', 'error')
+        return redirect(url_for('campaign_details', campaign_id=campaign_id))
 
     campaign = Campaign.query.filter_by(campaign_id=campaign_id).first()
 
     if not campaign:
-        flash('Campaign not found or you do not have permission to delete this campaign')
+        flash('Campaign not found or you do not have permission to delete this campaign', 'error')
         return redirect(url_for('sponsor_dashboard'))
 
+    # Update the campaign status to 'deleted'
     campaign.campaign_status = 'deleted'
+    
+    # Update all associated ad requests to 'cancelled'
+    ad_requests = AdRequest.query.filter_by(campaign_id=campaign_id).all()
+    for request in ad_requests:
+        request.status = 'deleted'
+
     db.session.commit()
-    flash('Campaign marked as deleted')
+    flash('Campaign marked as deleted and related ad requests have been cancelled')
     return redirect(url_for('sponsor_dashboard'))
+
 
 
 @app.route('/profile', methods=['GET'])
@@ -535,14 +574,11 @@ def ad_request_details(request_id):
     ad_request = AdRequest.query.get_or_404(request_id)
     return render_template('ad_request_details.html', ad_request=ad_request)
 
-@app.route('/add_ad_request', methods=['GET', 'POST'])
+@app.route('/add_ad_request/<int:campaign_id>', methods=['GET', 'POST'])
 @auth_rep
-def add_ad_request():
+def add_ad_request(campaign_id):
     if request.method == 'POST':
-        campaign_id = request.form.get('campaign_id')
         created_for = request.form.get('created_for', '').strip().lower()
-        print(f"Searching for username: {created_for}")
-
         messages = request.form.get('messages')
         requirements = request.form.get('requirements')
         payment_amount = request.form.get('payment_amount')
@@ -551,8 +587,7 @@ def add_ad_request():
         campaign = Campaign.query.get(campaign_id)
         creator = User.query.get(session['user_id'])
         recipient = User.query.filter_by(username=created_for).first()
-        
-        # Check if the user is an influencer
+
         if user_role == 3:  # Influencer
             influencer = InfluencerProfile.query.filter_by(id=session['user_id']).first()
             sponsor = Sponsor.query.get(campaign.sponsor_id)
@@ -568,7 +603,7 @@ def add_ad_request():
                 )
             else:
                 flash('You can only request for public campaigns matching your niche.', 'error')
-                return redirect(url_for('add_ad_request'))
+                return redirect(url_for('add_ad_request', campaign_id=campaign_id))
         elif user_role == 2:  # Sponsor
             influencer = InfluencerProfile.query.filter_by(id=recipient.id).first()
             if influencer.niche == campaign.niche:
@@ -583,21 +618,20 @@ def add_ad_request():
                 )
             else:
                 flash('The influencer niche must match the campaign niche.', 'error')
-                return redirect(url_for('add_ad_request'))
+                return redirect(url_for('add_ad_request', campaign_id=campaign_id))
         else:
             flash('Unauthorized action.', 'error')
-            return redirect(url_for('add_ad_request'))
+            return redirect(url_for('add_ad_request', campaign_id=campaign_id))
 
         db.session.add(new_request)
         db.session.commit()
-        flash('Ad Request added successfully!','success')
+        flash('Ad Request added successfully!', 'success')
         return redirect(url_for('campaign_details', campaign_id=campaign_id))
 
     # GET request: Display form
-    campaigns = Campaign.query.all()
-    users = User.query.filter(User.role_id == 3).all()  # Fetch influencers only
+    campaign = Campaign.query.get(campaign_id)
+    return render_template('add_ad_request.html', campaign=campaign)
 
-    return render_template('add_ad_request.html', campaigns=campaigns, users=users)
 
 @app.route('/ad_request/edit/<int:request_id>', methods=['GET', 'POST'])
 @auth_rep
@@ -747,3 +781,15 @@ def reject_ad_request(request_id):
     elif session['role_id']==2:
         return redirect(url_for('sponsor_dashboard'))
 
+@app.route('/update_ad_request_status/<int:request_id>', methods=['POST'])
+@auth_rep
+@check_adr_editable
+def update_ad_request_status(request_id):
+    ad_request = AdRequest.query.get_or_404(request_id)
+    status = request.form['status']
+
+    if status in ['completed', 'deleted']:
+        ad_request.status = status
+        db.session.commit()
+
+    return redirect(url_for('ad_request_details', request_id=ad_request.ad_request_id))

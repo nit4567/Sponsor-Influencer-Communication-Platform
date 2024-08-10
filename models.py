@@ -4,9 +4,6 @@ from sqlalchemy import Enum
 from werkzeug.security import generate_password_hash
 from datetime import date,datetime
 
-'''
-have to remake the data set there has been an edit also have to check serch tab for sponsors 
-'''
 
 db = SQLAlchemy(app)
 

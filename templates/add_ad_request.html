@@ -7,17 +7,11 @@
 {% block content %}
 <div class="container">
     <h2>Add Ad Request</h2>
-    <form action="{{ url_for('add_ad_request') }}" method="POST">
-        <div class="form-group">
-            <label for="campaign_id">Campaign</label>
-            <select name="campaign_id" id="campaign_id" class="form-control">
-                {% for campaign in campaigns %}
-                    <option value="{{ campaign.campaign_id }}">{{ campaign.name }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        
-        {% if session['role_id']==2 %}
+    <form action="{{ url_for('add_ad_request', campaign_id=campaign.campaign_id) }}" method="POST">
+        <!-- Hidden input to pass the campaign_id -->
+        <input type="hidden" name="campaign_id" value="{{ campaign.campaign_id }}">
+
+        {% if session['role_id'] == 2 %}
         <div class="form-group">
             <label for="created_for">Created For (Username)</label>
             <input type="text" name="created_for" id="created_for" class="form-control" required>
